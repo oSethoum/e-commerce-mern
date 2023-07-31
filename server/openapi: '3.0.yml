@@ -1,0 +1,26 @@
+openapi: "3.0.2"
+info:
+  title: Store Api
+  version: "1.0"
+servers:
+  - url: http://localhost:4000/api
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+paths:
+  /users:
+    get:
+      responses:
+        "200":
+          description: OK
+    post:
+      description: "Create User"
+      parameters: []
+      responses:
+        "200":
+          description: OK
