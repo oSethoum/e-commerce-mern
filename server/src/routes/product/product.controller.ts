@@ -14,7 +14,7 @@ export const findProduct: Handler = async (req, res, next) => {
 
 export const queryProduct: Handler = async (req, res, next) => {
   try {
-    const products = await Product.find().populate("products");
+    const products = await Product.find();
     res.status(200).json({ code: 200, status: "success", data: products });
   } catch (error) {
     next(error);

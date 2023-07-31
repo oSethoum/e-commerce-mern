@@ -14,7 +14,7 @@ export const findUser: Handler = async (req, res, next) => {
 
 export const queryUser: Handler = async (req, res, next) => {
   try {
-    const users = await User.find().populate("users");
+    const users = await User.find();
     res.status(200).json({ code: 200, status: "success", data: users });
   } catch (error) {
     next(error);
