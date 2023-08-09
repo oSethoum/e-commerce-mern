@@ -1,11 +1,12 @@
 import { Handler } from "express";
 import User, { IUser } from "./user.model";
+import { HTTPError } from "../../common/http-error";
 
 export const findUser: Handler = async (req, res, next) => {
   try {
     const id = req.params.id;
     const user = await User.findById(id);
-    if (!user) throw new Error("404::user not found");
+    if (!user) throw new HTTPError(404, "user not found");
     res.status(200).json({ code: 200, status: "success", data: user });
   } catch (error) {
     next(error);

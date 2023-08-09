@@ -1,19 +1,18 @@
 import { Handler } from "express";
-import { verifyToken } from "../utils/jwt";
+import jwt from "jsonwebtoken";
+import { HTTPError } from "../common/http-error";
 
-export const tokenMiddleware: Handler = async (req, res, next) => {
-  let auth = req.headers.authorization;
-  if (auth && auth.split(" ").length == 2) {
-    const token = auth.split(" ")[1];
-    const result = await verifyToken(token);
-    if (result != null) {
-      next();
+export const tokenMiddleware: Handler = (req, res, next) => {
+  try {
+    const accessToken = req.headers.authorization;
+    if (!accessToken) {
+      throw new HTTPError(401, "malformed or expired token");
     }
+    const secret = process.env.JWT_ACCESS_SECRET || "access-token";
+    const result: any = jwt.verify(accessToken, secret);
+    res.locals.userId = result.user._id;
+    next();
+  } catch {
+    next(new HTTPError(401, "expired or malformed jwt"));
   }
-
-  return res.status(401).json({
-    code: 401,
-    status: "error",
-    error: "missing or malformed access token",
-  });
 };

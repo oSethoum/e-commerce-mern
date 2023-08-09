@@ -7,24 +7,23 @@ import productRouter from "./product/product.router";
 import orderRouter from "./order/order.router";
 import morgan from "morgan";
 import * as middleware from "../middleware";
+import cookieParser from "cookie-parser";
 
 export const setupRoutes = (app: Express) => {
   app.use(json());
   app.use(cors());
   app.use(helmet());
   app.use(morgan("dev"));
+  app.use(cookieParser());
 
-  const api = express.Router();
   // public routes
-  app.use("/api/auth", authRouter);
-
-  api.use(middleware.tokenMiddleware);
+  app.use("/auth", authRouter);
   // protected routes
+  const api = express.Router();
   api.use("/users", userRouter);
   api.use("/products", productRouter);
   api.use("/orders", orderRouter);
-
-  app.use("/api", api);
+  app.use("/api", middleware.tokenMiddleware, api);
   // catch unhandled exceptions
   app.use(middleware.errorMiddleware);
 };

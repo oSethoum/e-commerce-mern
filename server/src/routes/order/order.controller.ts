@@ -1,11 +1,12 @@
 import { Handler } from "express";
 import Order, { IOrder } from "./order.model";
+import { HTTPError } from "../../common/http-error";
 
 export const findOrder: Handler = async (req, res, next) => {
   try {
     const id = req.params.id;
     const order = await Order.findById(id);
-    if (!order) throw new Error("404::order not found");
+    if (!order) throw new HTTPError(404, "order not found");
     res.status(200).json({ code: 200, status: "success", data: order });
   } catch (error) {
     next(error);

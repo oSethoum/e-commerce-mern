@@ -1,21 +1,23 @@
-import { ErrorRequestHandler } from "express";
+import { Response } from "express";
 
-export const errorMiddleware: ErrorRequestHandler = (
-  error: Error,
-  req,
-  res
-) => {
-  if (error.message.includes("::")) {
-    const [code, message] = error.message.split("::");
-    return res.status(parseInt(code)).json({
-      code: parseInt(code),
-      status: "error",
-      message,
-    });
+export const errorMiddleware = (error, _, res: Response, __) => {
+  let statusCode = 500;
+  let message = error.message || "Internal Server Error";
+
+  if (error.name == "CastError") {
+    statusCode = 400;
   }
-  res.status(500).json({
-    code: 500,
+
+  if (error.name == "HTTPError") {
+    if (res.locals.logout) {
+      res.clearCookie("refresh-token");
+    }
+    statusCode = error.statusCode;
+  }
+
+  return res.status(statusCode).json({
+    statusCode,
     status: "error",
-    message: error.message,
+    message,
   });
 };
