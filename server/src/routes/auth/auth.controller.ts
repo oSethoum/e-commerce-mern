@@ -8,15 +8,14 @@ import jwt from "jsonwebtoken";
 export const login: Handler = async (req, res, next) => {
   try {
     const body: { login: string; password: string } = req.body;
-    const userObject = await User.findOne({
+    const user = await User.findOne({
       $or: [{ email: body.login }, { username: body.login }],
     });
-    if (!userObject || !(await compare(body.password, userObject.password))) {
+    if (!user || !(await compare(body.password, user.password))) {
       throw new HTTPError(400, "Invalid credentials");
     }
     //@ts-ignore
-    userObject.password = undefined;
-    const user = userObject.toJSON();
+    user.password = undefined;
     const refreshSecret = process.env.JWT_REFRESH_SECRET || "refresh-secret";
     const accessSecret = process.env.JWT_ACCESS_SECRET || "access-secret";
     const tokenId = crypto.randomBytes(5).toString("hex");
