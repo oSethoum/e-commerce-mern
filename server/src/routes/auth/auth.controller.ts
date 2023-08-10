@@ -4,17 +4,18 @@ import { HTTPError } from "../../common/http-error";
 import { hash, compare } from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-
+import { loginBodySchema, registerBodySchema } from "./auth.validator";
+import { Input, parse } from "valibot";
 export const login: Handler = async (req, res, next) => {
   try {
-    const body: { login: string; password: string } = req.body;
-    const user = await User.findOne({
-      $or: [{ email: body.login }, { username: body.login }],
-    });
+    const body: Input<typeof loginBodySchema> = req.body;
+    parse(loginBodySchema, body);
+    loginBodySchema;
+    const user = await User.findOne({ email: body.email });
     if (!user || !(await compare(body.password, user.password))) {
       throw new HTTPError(400, "Invalid credentials");
     }
-    //@ts-ignore
+    // @ts-ignore
     user.password = undefined;
     const refreshSecret = process.env.JWT_REFRESH_SECRET || "refresh-secret";
     const accessSecret = process.env.JWT_ACCESS_SECRET || "access-secret";
@@ -31,7 +32,7 @@ export const login: Handler = async (req, res, next) => {
       httpOnly: true,
       secure: true,
       domain: ".localhost",
-      maxAge: 1000 * 3600 * 24 * 30, // 30 days nax age
+      maxAge: 1000 * 3600 * 24 * 30, // 30 days max age
     });
 
     res.status(200).json({
@@ -49,10 +50,10 @@ export const login: Handler = async (req, res, next) => {
 
 export const register: Handler = async (req, res, next) => {
   try {
-    const body: Omit<IUser, "_id"> = req.body;
-    body.isAdmin = false;
-    body.password = await hash(body.password, 7);
-    const user = await User.create(body);
+    const body: Input<typeof registerBodySchema> = req.body;
+    parse(registerBodySchema, body);
+    body.password = await hash(body.password!, 7);
+    const user = await User.create({ ...body, isAdmin: false });
     if (user) {
       res.status(201).json({
         code: 201,
@@ -69,32 +70,20 @@ export const recover: Handler = (req, res) => {};
 export const refresh: Handler = async (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
-    let accessToken = req.headers.authorization;
-
-    if (!refreshToken || !accessToken) {
+    if (!refreshToken) {
       res.locals.logout = true;
       throw new HTTPError(308, "logout");
     }
-
-    const accessSecret = process.env.JWT_ACCESS_SECRET || "access-secret";
     const refreshSecret = process.env.JWT_REFRESH_SECRET || "refresh-secret";
+    const accessSecret = process.env.JWT_ACCESS_SECRET || "access-secret";
     const refreshResult: any = jwt.verify(refreshToken, refreshSecret);
-    const accessResult: any = jwt.verify(accessToken, accessSecret, {
-      ignoreExpiration: true,
-    });
-
-    if (refreshResult.tokenId != accessResult.tokenId) {
-      res.locals.logout = true;
-      throw new HTTPError(308, "logout");
-    }
-
     const user = await User.findById(refreshResult.user_id);
     if (!user) {
       res.locals.logout = true;
       throw new HTTPError(308, "logout");
     }
 
-    accessToken = jwt.sign(
+    const accessToken = jwt.sign(
       {
         tokenId: refreshResult.tokenId,
         user,
