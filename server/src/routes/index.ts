@@ -15,15 +15,11 @@ export const setupRoutes = (app: Express) => {
   app.use(helmet());
   app.use(morgan("dev"));
   app.use(cookieParser());
-
-  // public routes
   app.use("/auth", authRouter);
-  // protected routes
   const api = express.Router();
-  api.use("/users", userRouter);
-  api.use("/products", productRouter);
-  api.use("/orders", orderRouter);
-  app.use("/api", middleware.tokenMiddleware, api);
-  // catch unhandled exceptions
+  api.use("/api/users", middleware.tokenMiddleware, userRouter);
+  api.use("/api/products", productRouter);
+  api.use("/api/orders", middleware.tokenMiddleware, orderRouter);
+  // error middleware
   app.use(middleware.errorMiddleware);
 };

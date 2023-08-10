@@ -1,18 +1,13 @@
 import express from "express";
-import {
-  createProduct,
-  deleteProduct,
-  findProduct,
-  queryProduct,
-  updateProduct,
-} from "./product.controller";
+import * as controller from "./product.controller";
+import * as middleware from "../../middleware";
 
 const router = express.Router();
 
-router.get("/:id", findProduct);
-router.get("/", queryProduct);
-router.post("/", createProduct);
-router.patch("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+router.get("/:id", controller.findProduct);
+router.get("/", controller.queryProduct);
+router.post("/", middleware.tokenMiddleware, controller.createProduct);
+router.patch("/:id", middleware.tokenMiddleware, controller.updateProduct);
+router.delete("/:id", middleware.tokenMiddleware, controller.deleteProduct);
 
 export default router;

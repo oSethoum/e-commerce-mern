@@ -8,5 +8,5 @@ export const loginBodySchema = object({
 export const registerBodySchema = object({
   name: string([regex(/^(?!\\d+$)\\w+(?: \\w+)*$/, "invalid name")]),
   email: string([email("invalid email")]),
-  password: string([minLength(6, "password too short")]),
+  password: string([minLength(6, "password is too short")]),
 });

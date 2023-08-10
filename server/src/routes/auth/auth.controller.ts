@@ -1,5 +1,5 @@
 import { Handler } from "express";
-import User, { IUser } from "../user/user.model";
+import User from "../user/user.model";
 import { HTTPError } from "../../common/http-error";
 import { hash, compare } from "bcrypt";
 import crypto from "crypto";
