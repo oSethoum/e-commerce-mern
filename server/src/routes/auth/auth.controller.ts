@@ -6,6 +6,7 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { loginBodySchema, registerBodySchema } from "./auth.validator";
 import { Input, parse } from "valibot";
+
 export const login: Handler = async (req, res, next) => {
   try {
     const body: Input<typeof loginBodySchema> = req.body;
@@ -65,7 +66,21 @@ export const register: Handler = async (req, res, next) => {
   }
 };
 
-export const recover: Handler = (req, res) => {};
+export const logout: Handler = (req, res) => {
+  res.clearCookie("refresh_token");
+  return res.status(200).json({
+    statusCode: 200,
+    status: "success",
+  });
+};
+
+export const recover: Handler = (req, res) => {
+  // TODO: send email to recover password
+};
+
+export const newPassword: Handler = (req, res) => {
+  // TODO: change password
+};
 
 export const refresh: Handler = async (req, res, next) => {
   try {

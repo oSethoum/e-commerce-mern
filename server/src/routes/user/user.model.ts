@@ -7,6 +7,7 @@ export interface IUser extends Document {
   isAdmin: boolean;
   address: string;
   password: string;
+  avatar: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,10 @@ export const userSchema: Schema<IUser> = new mongoose.Schema<IUser>({
   },
   address: {
     type: String,
+  },
+  avatar: {
+    type: String,
+    default: "profile.png",
   },
   password: {
     type: String,

@@ -1,13 +1,14 @@
-import express, { Express, json } from "express";
+import { Express, json } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import authRouter from "./auth/auth.router";
 import userRouter from "./user/user.router";
 import productRouter from "./product/product.router";
 import orderRouter from "./order/order.router";
+import profileRouter from "./profile/profile.router";
 import morgan from "morgan";
-import * as middleware from "../middleware";
 import cookieParser from "cookie-parser";
+import * as middleware from "../middleware";
 
 export const setupRoutes = (app: Express) => {
   app.use(json());
@@ -15,11 +16,13 @@ export const setupRoutes = (app: Express) => {
   app.use(helmet());
   app.use(morgan("dev"));
   app.use(cookieParser());
+
   app.use("/auth", authRouter);
-  const api = express.Router();
-  api.use("/api/users", middleware.tokenMiddleware, userRouter);
-  api.use("/api/products", productRouter);
-  api.use("/api/orders", middleware.tokenMiddleware, orderRouter);
-  // error middleware
+
+  app.use("/api/profile", middleware.tokenMiddleware, profileRouter);
+  app.use("/api/users", middleware.tokenMiddleware, userRouter);
+  app.use("/api/products", productRouter);
+  app.use("/api/orders", middleware.tokenMiddleware, orderRouter);
+
   app.use(middleware.errorMiddleware);
 };

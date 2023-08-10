@@ -7,5 +7,6 @@ router.post("/login", controller.login);
 router.post("/register", controller.register);
 router.post("/recover", controller.recover);
 router.post("/refresh", controller.refresh);
+router.post("/logout", controller.refresh);
 
 export default router;
