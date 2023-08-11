@@ -15,7 +15,7 @@ export const findUser: Handler = async (req, res, next) => {
 
 export const queryUser: Handler = async (req, res, next) => {
   try {
-    const users = await User.find();
+    const users = await User.find({ password: 0 });
     res.status(200).json({ code: 200, status: "success", data: users });
   } catch (error) {
     next(error);

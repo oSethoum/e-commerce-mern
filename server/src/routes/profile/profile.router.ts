@@ -2,7 +2,7 @@ import express from "express";
 import * as controller from "./profile.controller";
 import multer from "multer";
 
-const upload = multer({ dest: "uploads/", preservePath: true });
+const upload = multer({ dest: "uploads/images/profile" });
 const router = express.Router();
 
 router.patch(

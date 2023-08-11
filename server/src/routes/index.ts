@@ -9,13 +9,20 @@ import profileRouter from "./profile/profile.router";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import * as middleware from "../middleware";
+import express from "express";
 
 export const setupRoutes = (app: Express) => {
   app.use(json());
-  app.use(cors());
+  app.use(
+    cors({
+      credentials: true,
+      origin: ["http://localhost:3000"],
+    })
+  );
   app.use(helmet());
   app.use(morgan("dev"));
   app.use(cookieParser());
+  app.use("/images/profile", express.static("uploads/images/profile"));
 
   app.use("/auth", authRouter);
 

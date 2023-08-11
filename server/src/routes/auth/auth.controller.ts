@@ -31,7 +31,6 @@ export const login: Handler = async (req, res, next) => {
 
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: true,
       domain: ".localhost",
       maxAge: 1000 * 3600 * 24 * 30, // 30 days max age
     });

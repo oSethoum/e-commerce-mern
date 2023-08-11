@@ -20,18 +20,10 @@ export const userSchema: Schema<IUser> = new mongoose.Schema<IUser>({
     min: 3,
     max: 50,
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    min: 3,
-    max: 50,
-  },
   email: {
     type: String,
     required: true,
     unique: true,
-    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   },
   isAdmin: {
     type: Boolean,

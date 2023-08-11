@@ -6,7 +6,6 @@ export const findProduct: Handler = async (req, res, next) => {
   try {
     const id = req.params.id;
     const product = await Product.findById(id);
-
     if (!product) throw new HTTPError(404, "user not found");
     res.status(200).json({ code: 200, status: "success", data: product });
   } catch (error) {
