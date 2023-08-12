@@ -67,7 +67,7 @@ export const register: Handler = async (req, res, next) => {
 
 export const logout: Handler = (req, res) => {
   res.clearCookie("refresh_token");
-  return res.status(200).json({
+  res.status(200).json({
     statusCode: 200,
     status: "success",
   });
@@ -83,15 +83,16 @@ export const newPassword: Handler = (req, res) => {
 
 export const refresh: Handler = async (req, res, next) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies["refresh_token"];
     if (!refreshToken) {
+      console.log("refresh token not available");
       res.locals.logout = true;
       throw new HTTPError(308, "logout");
     }
     const refreshSecret = process.env.JWT_REFRESH_SECRET || "refresh-secret";
     const accessSecret = process.env.JWT_ACCESS_SECRET || "access-secret";
-    const refreshResult: any = jwt.verify(refreshToken, refreshSecret);
-    const user = await User.findById(refreshResult.user_id);
+    const profile: any = jwt.verify(refreshToken, refreshSecret);
+    const user = await User.findById(profile.user._id);
     if (!user) {
       res.locals.logout = true;
       throw new HTTPError(308, "logout");
@@ -99,7 +100,7 @@ export const refresh: Handler = async (req, res, next) => {
 
     const accessToken = jwt.sign(
       {
-        tokenId: refreshResult.tokenId,
+        tokenId: profile.tokenId,
         user,
       },
       accessSecret,
@@ -109,7 +110,10 @@ export const refresh: Handler = async (req, res, next) => {
     res.status(200).json({
       statusCode: 200,
       status: "success",
-      accessToken,
+      data: {
+        accessToken,
+        user,
+      },
     });
   } catch (error) {
     next(error);

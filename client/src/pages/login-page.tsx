@@ -1,10 +1,14 @@
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { object, string, email, regex, minLength, Input } from "valibot";
+import { appStore } from "@/stores";
 
 export const LoginPage = () => {
+  const setProfile = appStore((state) => state.setProfile);
+  const request = appStore((state) => state.request);
+  const navigate = useNavigate();
   const schema = useMemo(
     () =>
       object({
@@ -23,6 +27,7 @@ export const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm({
     resolver: valibotResolver(schema),
@@ -35,15 +40,21 @@ export const LoginPage = () => {
   });
 
   const onSubmit = async (data: Input<typeof schema>) => {
-    const response = await fetch("http://localhost:4000/auth/login", {
-      headers: {
-        "content-type": "application/json",
-      },
+    const response = await request("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
-      credentials: "include",
     });
-    console.log(await response.json());
+    if (response.status == 200) {
+      setProfile((await response.json()).data);
+      navigate("/");
+    }
+    if (response.status == 400) {
+      setError("email", { message: "invalid credentials", type: "onChange" });
+      setError("password", {
+        message: "invalid credentials",
+        type: "onChange",
+      });
+    }
   };
 
   return (
@@ -58,7 +69,8 @@ export const LoginPage = () => {
           <input
             className="py-1 px-2 ring-1 rounded-md ring-gray-300 
             focus:outline-none focus:ring-2 focus:ring-slate-800 
-            aria-[invalid=true]:ring-red-600 aria-[invalid=true]:focus-visible:ring-red-600 aria-[invalid=true]:text-red-500"
+            aria-[invalid=true]:ring-red-600 aria-[invalid=true]:focus-visible:ring-red-600 
+            aria-[invalid=true]:text-red-500"
             aria-invalid={!!errors.email}
             type="text"
             placeholder="example@email.com"
@@ -71,7 +83,8 @@ export const LoginPage = () => {
           <input
             className="py-1 px-2 ring-1 rounded-md ring-gray-300 
             focus:outline-none focus:ring-2 focus:ring-slate-800 
-            aria-[invalid=true]:ring-red-600 aria-[invalid=true]:focus-visible:ring-red-600 aria-[invalid=true]:text-red-500"
+            aria-[invalid=true]:ring-red-600 aria-[invalid=true]:focus-visible:ring-red-600 
+            aria-[invalid=true]:text-red-500"
             type="password"
             aria-invalid={!!errors.password}
             placeholder="password"
@@ -89,9 +102,7 @@ export const LoginPage = () => {
             type="submit"
             className="mt-2 px-5 font-semibold py-1.5 rounded-md bg-slate-800 transition-colors
             hover:bg-slate-700 active:bg-slate-900 text-white 
-            focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-slate-800
-            disabled:bg-slate-400 disabled:active:bg-slate-400 disabled:hover:bg-slate-400 disabled:cursor-not-allowed"
-            disabled={!!errors.email || !!errors.password}
+            focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-slate-800"
           >
             Login
           </button>

@@ -2,8 +2,11 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { valibotResolver } from "@hookform/resolvers/valibot";
 import { object, string, email, regex, minLength, Input } from "valibot";
+import { useNavigate } from "react-router-dom";
 
 export const RegisterPage = () => {
+  const navigate = useNavigate();
+
   const schema = useMemo(
     () =>
       object({
@@ -32,20 +35,19 @@ export const RegisterPage = () => {
       password: "",
     },
     mode: "onBlur",
-    reValidateMode: "onChange",
   });
 
   const onSubmit = async (data: Input<typeof schema>) => {
-    console.log(data);
-
     const response = await fetch("http://localhost:4000/auth/register", {
-      headers: {
-        "content-type": "application/json",
-      },
       method: "POST",
       body: JSON.stringify(data),
     });
-    console.log(await response.json());
+    if (response.status == 200) {
+      navigate("/login");
+    }
+    if (response.status == 400) {
+      // TODO: set the errors
+    }
   };
 
   return (
@@ -101,9 +103,7 @@ export const RegisterPage = () => {
             type="submit"
             className="mt-2 px-5 font-semibold py-1.5 rounded-md bg-slate-800 transition-colors
             hover:bg-slate-700 active:bg-slate-900 text-white 
-            focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-slate-800
-            disabled:bg-slate-400 disabled:active:bg-slate-400 disabled:hover:bg-slate-400 disabled:cursor-not-allowed"
-            disabled={!!errors.name || !!errors.email || !!errors.password}
+            focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-slate-800"
           >
             Register
           </button>

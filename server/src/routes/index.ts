@@ -10,6 +10,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import * as middleware from "../middleware";
 import express from "express";
+import { join } from "path";
 
 export const setupRoutes = (app: Express) => {
   app.use(json());
@@ -32,4 +33,9 @@ export const setupRoutes = (app: Express) => {
   app.use("/api/orders", middleware.tokenMiddleware, orderRouter);
 
   app.use(middleware.errorMiddleware);
+
+  app.use(express.static("client"));
+  app.get("*", (req, res) => {
+    res.sendFile(join("client", "index.html"));
+  });
 };
